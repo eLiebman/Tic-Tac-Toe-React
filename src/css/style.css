@@ -50,6 +50,7 @@ img {
   color: #54D17A;
 }
 .button, .diff {
+  border: 3px solid #fff;
   background: #fff;
   border-radius: 4px;
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1);
@@ -193,7 +194,7 @@ img {
   z-index: 20;
   background-color: #54D17A; }
   .screen#difficultySelect h1 {
-    margin: 100px auto 30px;
+    margin: 200px auto 50px;
     width: auto;
     text-align: center;
   }

@@ -6,7 +6,7 @@ import { BrowserRouter,
 
 // App Components
 import LandingPage from './components/LandingPage';
-import EnterName from './components/EnterName';
+import DifficultySelect from './components/DifficultySelect';
 import Game from './components/Game';
 import GameOver from './components/GameOver'
 
@@ -235,10 +235,8 @@ class App extends Component {
         <Switch>
           <Route exact path="/" render={ () => <LandingPage setOnePlayer={this.setOnePlayerGame} />} />
           <Route path="/1p"
-                 render={ () => <EnterName setDifficulty={this.setLevel}
-                                           name={this.state.name}
-                                           updateName={this.updateName}
-                                           diff={this.getDiff()}/>
+                 render={ () => <DifficultySelect setDifficulty={this.setLevel}
+                                                  diff={this.getDiff()}/>
                         } />
 
           <Route path="/play"
