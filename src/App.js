@@ -102,6 +102,18 @@ class App extends Component {
       }
     }
   }
+
+  getGameOverMessage = () => {
+    if(!this.state.winner) {
+      return "It's a Tie!"
+    } else if (!this.state.isOnePlayerGame) {
+      return "You've Won!"
+    } else if (this.state.winner==="x") {
+      return "You've Lost..."
+    } else {
+      return "You've Won!"
+    }
+  }
 //Helps move functions execute synchronously
   setStateSync = state => {
     return new Promise((resolve, reject) => {
@@ -244,7 +256,7 @@ class App extends Component {
                  render={ () => <GameOver winner={this.state.winner}
                                           reset={this.resetState}
                                           setOnePlayer={this.setOnePlayerGame}
-                                          onePlayerMode={this.isOnePlayerGame} />
+                                          message={this.getGameOverMessage()} />
                         } />
           <Route render={ () => <Redirect to="/" /> } />
         </Switch>
