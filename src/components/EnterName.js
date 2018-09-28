@@ -12,9 +12,15 @@ const EnterName = props => {
                          onChange={ e => props.updateName(e.target.value) } />
 
       <h2 className="difficulty-header">Select Difficulty</h2>
-      <a href="#" className="diff" id="easy"   onClick={ () => props.setDifficulty("easy")} > Easy </a>
-      <a href="#" className="diff" id="medium" onClick={ () => props.setDifficulty("medium")} > Medium </a>
-      <a href="#" className="diff" id="hard"   onClick={ () => props.setDifficulty("hard")} > Hard </a><br />
+      <a href="#" id="easy"
+                  className={`diff ${props.diff==="easy"?"diff-active":""}`}
+                  onClick={ () => props.setDifficulty("easy")} > Easy </a>
+      <a href="#" id="medium"
+                  className={`diff ${props.diff==="medium"?"diff-active":""}`}
+                  onClick={ () => props.setDifficulty("medium")} > Medium </a>
+      <a href="#" id="hard"
+                  className={`diff ${props.diff==="hard"?"diff-active":""}`}
+                  onClick={ () => props.setDifficulty("hard")} > Hard </a><br />
 
       <Link to="/play" className="button play"> Play </Link>
     </div>
@@ -24,7 +30,8 @@ const EnterName = props => {
 EnterName.propTypes = {
   setDifficulty: PropTypes.func.isRequired,
   updateName: PropTypes.func.isRequired,
-  name: PropTypes.string.isRequired
+  name: PropTypes.string.isRequired,
+  diff: PropTypes.string.isRequired
 }
 
 export default EnterName;

@@ -93,7 +93,16 @@ class App extends Component {
     })
   }
 
-//Helps computer player functions execute synchronously
+  getDiff = () => {
+    const level = this.state.level;
+    const levels = this.levels;
+    for (let diff in levels) {
+      if (levels[diff] === level) {
+        return diff;
+      }
+    }
+  }
+//Helps move functions execute synchronously
   setStateSync = state => {
     return new Promise((resolve, reject) => {
       if (state) {
@@ -203,7 +212,8 @@ class App extends Component {
           <Route path="/1p"
                  render={ () => <EnterName setDifficulty={this.setLevel}
                                            name={this.state.name}
-                                           updateName={this.updateName}/>
+                                           updateName={this.updateName}
+                                           diff={this.getDiff()}/>
                         } />
 
           <Route path="/play"
