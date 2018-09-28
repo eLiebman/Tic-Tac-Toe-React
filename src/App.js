@@ -120,13 +120,13 @@ class App extends Component {
   humanMove = index => {
     if ( !this.state.board[index] ) {
       this.fillBox(index)
-      .then( () => this.setStateSync(this.checkForWinner()))
+      .then(this.checkForWinner).then( winner => this.setStateSync(winner))
       .then(this.changePlayer)
       .then(() => {
         if ( !this.state.gameOver && this.state.isOnePlayerGame ) {
           setTimeout(() => {
             this.computerMove()
-            .then( () => this.setStateSync(this.checkForWinner()))
+            .then(this.checkForWinner).then( winner => this.setStateSync(winner))
             .then(this.changePlayer)
           }, 700);
         }
@@ -184,8 +184,21 @@ class App extends Component {
                                               && board[at[2]] === player)).length;
     const gameOver = isWinner || isBoardFull;
     const winner = isWinner?player:"";
-
-    return gameOver?{gameOver, winner}:false
+    // When called with arguments the function completes immediately
+    if(newBoard || newPlayer) {
+      return gameOver?{gameOver, winner}:false
+    } else {
+    // When called without arguments, the function returns a promise
+      if (!gameOver) {
+        return new Promise( resolve => resolve(false));
+      } else {
+        return new Promise( resolve => {
+          setTimeout(() => {
+            resolve({gameOver, winner});
+          }, 700);
+        })
+      }
+    }
   }
 
   changePlayer = () => {
