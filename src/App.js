@@ -46,6 +46,7 @@ class App extends Component {
     })
   }
 
+// Manage difficulty levels
   levels = {
     easy:.3,
     medium:.6,
@@ -132,7 +133,7 @@ class App extends Component {
     return emptyIndices;
   }
 
-// Helper functions are called in order each turn
+// Helper functions for each turn
   fillBox = index => {
     return this.setStateSync({
       board: this.state.board.map((box, i) => i===index?this.state.player:box)
