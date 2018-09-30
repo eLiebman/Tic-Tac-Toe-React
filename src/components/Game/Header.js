@@ -21,7 +21,6 @@ const Header = props => {
 
 Header.propTypes = {
   player: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
   reset: PropTypes.func.isRequired
 }
 

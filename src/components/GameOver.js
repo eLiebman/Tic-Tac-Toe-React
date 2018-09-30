@@ -22,8 +22,6 @@ const GameOver = props => {
 GameOver.propTypes = {
   winner: PropTypes.string.isRequired,
   reset: PropTypes.func.isRequired,
-  name: PropTypes.string,
-  setOnePlayer: PropTypes.func.isRequired,
   message: PropTypes.string.isRequired
 }
 

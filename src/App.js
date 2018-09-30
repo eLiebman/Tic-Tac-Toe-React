@@ -10,28 +10,10 @@ import DifficultySelect from './components/DifficultySelect';
 import Game from './components/Game';
 import GameOver from './components/GameOver'
 
-import logo from './logo.svg';
 import './css/normalize.css';
 import './css/style.css';
 
 class App extends Component {
-
-  swap = {
-    x:"o",
-    o:"x"
-  }
-
-  wins = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ]
-
   state = {
     board: [
       "", "", "",
@@ -42,8 +24,26 @@ class App extends Component {
     gameOver: false,
     winner: "",
     isOnePlayerGame: false,
-    level: .3,
-    name: ""
+    level: .3
+  }
+
+  resetState = isOnePlayer => {
+    const reset = {
+      board: [
+        "", "", "",
+        "", "", "",
+        "", "", ""
+      ],
+      player: "o",
+      gameOver: false,
+      winner: "",
+    };
+
+    this.setState({
+      ...this.state,
+      ...reset,
+      isOnePlayerGame: isOnePlayer?true:false
+    })
   }
 
   levels = {
@@ -52,48 +52,14 @@ class App extends Component {
     hard:.9
   }
 
-  reset = {
-    board: [
-      "", "", "",
-      "", "", "",
-      "", "", ""
-    ],
-    player: "o",
-    gameOver: false,
-    winner: "",
-  }
-
-// Callbacks for UI controls
-  setLevel = (diff) => {
+  setLevel = diff => {
     this.setState({
       ...this.state,
       level: this.levels[diff]
     });
   }
 
-  updateName = input => {
-    this.setState({
-      ...this.state,
-      name: input
-    });
-  }
-
-  setOnePlayerGame = () => {
-    this.setState({
-      ...this.state,
-      isOnePlayerGame: true
-    });
-  }
-
-  resetState = isOnePlayer => {
-    this.setState({
-      ...this.state,
-      ...this.reset,
-      isOnePlayerGame: isOnePlayer?true:false
-    })
-  }
-
-  getDiff = () => {
+  getLevel = () => {
     const level = this.state.level;
     const levels = this.levels;
     for (let diff in levels) {
@@ -103,31 +69,6 @@ class App extends Component {
     }
   }
 
-  getGameOverMessage = () => {
-    if(!this.state.winner) {
-      return "It's a Tie!"
-    } else if (!this.state.isOnePlayerGame) {
-      return "You've Won!"
-    } else if (this.state.winner==="x") {
-      return "You've Lost..."
-    } else {
-      return "You've Won!"
-    }
-  }
-//Helps move functions execute synchronously
-  setStateSync = state => {
-    return new Promise((resolve, reject) => {
-      if (state) {
-        this.setState({
-          ...this.state,
-          ...state
-        }, () => {resolve()});
-      } else {
-        resolve();
-      }
-    });
-  }
-
 // Gameplay
   humanMove = index => {
     if ( !this.state.board[index] ) {
@@ -135,6 +76,7 @@ class App extends Component {
       .then(this.checkForWinner).then( winner => this.setStateSync(winner))
       .then(this.changePlayer)
       .then(() => {
+        // Computers Turn
         if ( !this.state.gameOver && this.state.isOnePlayerGame ) {
           setTimeout(() => {
             this.computerMove()
@@ -157,6 +99,7 @@ class App extends Component {
 
     let chosenMove = randomMove;
 
+    // Lookahead
     if (isSmart) {
       //Can computer win?
       const winningMoves = possibleMoves.filter( index => {
@@ -169,7 +112,7 @@ class App extends Component {
         return this.checkForWinner(newBoard, "o");
       });
       if (winningMoves.length) {
-        //Play winning move
+        //Chose winning move
         chosenMove = winningMoves[0];
       } else if (opponentWinningMoves.length) {
         // Or block opponent
@@ -179,7 +122,17 @@ class App extends Component {
     return this.fillBox(chosenMove);
   }
 
-// Helper functions for each turn
+  getEmptyBoxes = () => {
+    const emptyIndices = [];
+    this.state.board.forEach((box, index) => {
+      if (box === "") {
+        emptyIndices.push(index);
+      }
+    })
+    return emptyIndices;
+  }
+
+// Helper functions are called in order each turn
   fillBox = index => {
     return this.setStateSync({
       board: this.state.board.map((box, i) => i===index?this.state.player:box)
@@ -187,16 +140,28 @@ class App extends Component {
   }
 
   checkForWinner = (newBoard, newPlayer) => {
+    const wins = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+
     const player = newPlayer?newPlayer:this.state.player;
     const board = newBoard?newBoard:this.state.board;
 
     const isBoardFull = !board.filter( box => box === "").length;
-    const isWinner = !!this.wins.filter( at => ( board[at[0]] === player
+    const isWinner = !!wins.filter( at => ( board[at[0]] === player
                                               && board[at[1]] === player
                                               && board[at[2]] === player)).length;
     const gameOver = isWinner || isBoardFull;
     const winner = isWinner?player:"";
-    // When called with arguments the function completes immediately
+    // When called with arguments (during the computer's lookahead)
+    // the function completes immediately
     if(newBoard || newPlayer) {
       return gameOver?{gameOver, winner}:false
     } else {
@@ -214,46 +179,61 @@ class App extends Component {
   }
 
   changePlayer = () => {
+    const swap = {
+      x:"o",
+      o:"x"
+    };
     return this.setStateSync({
       player: this.swap[this.state.player]
     });
   }
 
-  getEmptyBoxes = () => {
-    const emptyIndices = [];
-    this.state.board.forEach((box, index) => {
-      if (box === "") {
-        emptyIndices.push(index);
+  setStateSync = state => {
+    return new Promise((resolve, reject) => {
+      if (state) {
+        this.setState({
+          ...this.state,
+          ...state
+        }, () => {resolve()});
+      } else {
+        resolve();
       }
-    })
-    return emptyIndices;
+    });
+  }
+
+  getGameOverMessage = () => {
+    if(!this.state.winner) {
+      return "It's a Tie!"
+    } else if (!this.state.isOnePlayerGame) {
+      return "You've Won!"
+    } else if (this.state.winner==="x") {
+      return "You've Lost..."
+    } else {
+      return "You've Won!"
+    }
   }
 
   render() {
     return (
       <BrowserRouter>
         <Switch>
-          <Route exact path="/" render={ () => <LandingPage setOnePlayer={this.setOnePlayerGame} />} />
+          <Route exact path="/" render={ () => <LandingPage reset={this.resetState} />} />
           <Route path="/1p"
                  render={ () => <DifficultySelect setDifficulty={this.setLevel}
-                                                  diff={this.getDiff()}/>
+                                                  diff={this.getLevel()}/>
                         } />
 
           <Route path="/play"
                  render={ () => this.state.gameOver?
                                  <Redirect to="/gameover"/>
                                  :
-                                 <Game name={this.state.name}
-                                       board={this.state.board}
+                                 <Game board={this.state.board}
                                        move={this.humanMove}
-                                       gameOver={this.state.gameOver}
-                                       player={this.state.player}
-                                       reset={this.resetState} />
+                                       player={this.state.player} />
                         } />
           <Route path="/gameover"
                  render={ () => <GameOver winner={this.state.winner}
                                           reset={this.resetState}
-                                          setOnePlayer={this.setOnePlayerGame}
                                           message={this.getGameOverMessage()} />
                         } />
           <Route render={ () => <Redirect to="/" /> } />
