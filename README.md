@@ -7,13 +7,11 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 To play, download the files,<br>
 
-### `npm install`
-
-Install all dependencies<br>
-
-### `npm start`
+Install all dependencies with
+#`npm install`<br>
 
 And run the app!<br>
+# `npm start`
 
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
