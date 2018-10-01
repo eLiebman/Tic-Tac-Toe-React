@@ -62,10 +62,6 @@ img {
   transition: 0.25s ease; }
   .button:hover {
     color: #000; }
-  .diff:focus {
-    border: 3px solid #FFA000;
-    color: #FFA000;
-  }
   .play {
     margin: 50px auto;
     padding: 20px;
@@ -105,6 +101,8 @@ img {
       margin: 200px auto 50px;
       width: auto;
       text-align: center; }
+    .screen-difficultySelect .button {
+      color: #54D17A; }
   .screen-win p {
     font-size: 6em;
     font-weight: 700;
@@ -121,6 +119,8 @@ img {
       z-index: -1; }
   .screen-win- {
     background: #54D17A; }
+    .screen-win- .button {
+      color: #54D17A; }
   .screen-win-o {
     background: #FFA000; }
     .screen-win-o .button {
