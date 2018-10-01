@@ -6,8 +6,7 @@ import Box from './Box';
 const Board = props => {
   return (
     <ul className="boxes">
-      {
-        props.boxes.map(( box, index ) => {
+      { props.boxes.map(( box, index ) => {
                       return (
                         <Box move={ () => props.move(index) }
                              contents={ props.boxes[index] } />

@@ -7,26 +7,21 @@ const DifficultySelect = props => {
   return (
     <div className="screen" id="difficultySelect">
         <h1 className="difficulty-header">Select Difficulty</h1>
-
-        <DelayLink to="/play"
-                   className={`diff ${props.diff==="easy"?"diff-active":""}`}
-                   onDelayStart={ () => props.setDifficulty("easy")}
-                   delay={800} > Easy </DelayLink>
-        <DelayLink to="/play"
-                   className={`diff ${props.diff==="medium"?"diff-active":""}`}
-                   onDelayStart={ () => props.setDifficulty("medium")}
-                   delay={800} > Medium </DelayLink>
-        <DelayLink to="/play"
-                    className={`diff ${props.diff==="hard"?"diff-active":""}`}
-                    onDelayStart={ () => props.setDifficulty("hard")}
-                    delay={800} > Hard </DelayLink>
+        {props.levels.map(level => {
+          return <DelayLink to="/play"
+                            className={`diff ${props.diff===level?"diff-active":""}`}
+                            onDelayStart={ () => props.setDifficulty(level)}
+                            delay={800} > { level[0].toUpperCase() + level.slice(1)} </DelayLink>
+                          })
+        }
     </div>
   );
 };
 
 DifficultySelect.propTypes = {
   setDifficulty: PropTypes.func.isRequired,
-  diff: PropTypes.string.isRequired
+  diff: PropTypes.string.isRequired,
+  levels: PropTypes.array.isRequired
 }
 
 export default DifficultySelect;

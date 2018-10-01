@@ -24,7 +24,12 @@ class App extends Component {
     gameOver: false,
     winner: "",
     isOnePlayerGame: false,
-    level: .3
+    level: .3,
+    levels: {
+      easy:.3,
+      medium:.6,
+      hard:.9
+    }
   }
 
   resetState = isOnePlayer => {
@@ -47,22 +52,16 @@ class App extends Component {
   }
 
 // Manage difficulty levels
-  levels = {
-    easy:.3,
-    medium:.6,
-    hard:.9
-  }
-
   setLevel = diff => {
     this.setState({
       ...this.state,
-      level: this.levels[diff]
+      level: this.state.levels[diff]
     });
   }
 
   getLevel = () => {
     const level = this.state.level;
-    const levels = this.levels;
+    const levels = this.state.levels;
     for (let diff in levels) {
       if (levels[diff] === level) {
         return diff;
@@ -219,9 +218,11 @@ class App extends Component {
       <BrowserRouter>
         <Switch>
           <Route exact path="/" render={ () => <LandingPage reset={this.resetState} />} />
+
           <Route path="/1p"
                  render={ () => <DifficultySelect setDifficulty={this.setLevel}
-                                                  diff={this.getLevel()}/>
+                                                  diff={this.getLevel()}
+                                                  levels={Object.keys(this.state.levels)} />
                         } />
 
           <Route path="/play"

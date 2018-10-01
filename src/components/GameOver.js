@@ -12,6 +12,7 @@ const GameOver = props => {
 
         <Link to="/play" className="button oneP"
                          onClick={ () => props.reset("onePlayer")} > New One Player Game </Link>
+                         
     		<Link to="/play" className="button twoP"
                          onClick={ () => props.reset()} > New Two Player Game </Link>
       </header>

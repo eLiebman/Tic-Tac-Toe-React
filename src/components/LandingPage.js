@@ -8,8 +8,11 @@ const LandingPage = props => {
     <div className="screen screen-start" id="start">
       <header>
         <h1>Tic Tac Toe</h1>
-        <Link to="/1p" className="button oneP" onClick={() => props.reset("onePlayer")}>One Player Game</Link>
-        <Link to="/play" className="button twoP" onClick={props.reset}>Two Player Game</Link>
+        <Link to="/1p" className="button oneP"
+                       onClick={() => props.reset("onePlayer")}> One Player Game </Link>
+
+        <Link to="/play" className="button twoP"
+                         onClick={props.reset}> Two Player Game </Link>
       </header>
     </div>
   );
