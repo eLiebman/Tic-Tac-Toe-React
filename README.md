@@ -5,7 +5,7 @@ This is a way for me to measure my progress, and get some practice with a new fr
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
-To play, download the files,<br>
+To play, download the files<br>
 
 Install all dependencies with<br>
 #### `npm install`
