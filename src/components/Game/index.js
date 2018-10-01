@@ -7,7 +7,7 @@ import Board from './Board';
 
 const Game = props => {
   return (
-      <div className="board" id="board">
+      <div className="board">
         <Header player={props.player} reset={props.reset}/>
         <Board boxes={props.board} move={props.move}/>
       </div>

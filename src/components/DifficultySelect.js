@@ -5,13 +5,13 @@ import DelayLink from './third-party/DelayLink';
 
 const DifficultySelect = props => {
   return (
-    <div className="screen" id="difficultySelect">
-        <h1 className="difficulty-header">Select Difficulty</h1>
+    <div className="screen screen-difficultySelect">
+        <h1>Select Difficulty</h1>
         {props.levels.map(level => {
           return <DelayLink to="/play"
-                            className={`diff ${props.diff===level?"diff-active":""}`}
+                            className={`button ${props.diff===level?"diff-active":""}`}
                             onDelayStart={ () => props.setDifficulty(level)}
-                            delay={800} > { level[0].toUpperCase() + level.slice(1)} </DelayLink>
+                            delay={800} > { level[0].toUpperCase() + level.slice(1) } </DelayLink>
                           })
         }
     </div>

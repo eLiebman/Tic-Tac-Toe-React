@@ -49,7 +49,7 @@ img {
 .diff, .play {
   color: #54D17A;
 }
-.button, .diff {
+.button {
   border: 3px solid #fff;
   background: #fff;
   border-radius: 4px;
@@ -72,10 +72,6 @@ img {
     font-size: 1.5em;
     width: 45%;
   }
-.diff {
-  margin: 0 5px;
-  padding: .75em 2em;
-}
 .diff-active {
   color: #FFA000;
   border: 3px solid #FFA000;
@@ -103,6 +99,12 @@ img {
       color: #54D17A; }
     .screen-start h1 + .button {
       margin-top: 5em; }
+  .screen-difficultySelect {
+    background-color: #54D17A; }
+    .screen-difficultySelect h1 {
+      margin: 200px auto 50px;
+      width: auto;
+      text-align: center; }
   .screen-win p {
     font-size: 6em;
     font-weight: 700;
@@ -190,14 +192,3 @@ img {
     .boxes .x {
       background-color: #3688C3;
       background-image: url(../img/x.svg); }
-.screen#difficultySelect {
-  z-index: 20;
-  background-color: #54D17A; }
-  .screen#difficultySelect h1 {
-    margin: 200px auto 50px;
-    width: auto;
-    text-align: center;
-  }
-  .screen#difficultySelect h2 {
-    margin: 30px auto 1.3em;
-  }

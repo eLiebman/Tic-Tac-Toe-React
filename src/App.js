@@ -81,7 +81,7 @@ class App extends Component {
             this.computerMove()
             .then(this.checkForWinner).then( winner => this.setStateSync(winner))
             .then(this.changePlayer)
-          }, 700);
+          }, 800);
         }
       });
     }
@@ -171,7 +171,7 @@ class App extends Component {
         return new Promise( resolve => {
           setTimeout(() => {
             resolve({gameOver, winner});
-          }, 700);
+          }, 800);
         })
       }
     }
@@ -183,7 +183,7 @@ class App extends Component {
       o:"x"
     };
     return this.setStateSync({
-      player: this.swap[this.state.player]
+      player: swap[this.state.player]
     });
   }
 
