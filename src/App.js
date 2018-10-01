@@ -51,7 +51,6 @@ class App extends Component {
     })
   }
 
-// Manage difficulty levels
   setLevel = diff => {
     this.setState({
       ...this.state,
