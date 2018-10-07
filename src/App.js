@@ -14,6 +14,22 @@ import './css/normalize.css';
 import './css/style.css';
 
 class App extends Component {
+  swap = {
+    x:"o",
+    o:"x"
+  }
+
+  wins = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ]
+
   state = {
     board: [
       "", "", "",
@@ -29,7 +45,8 @@ class App extends Component {
       easy:.3,
       medium:.6,
       hard:.9
-    }
+    },
+    waitFor: 1500 // miliseconds before returning a value
   }
 
   resetState = isOnePlayer => {
@@ -81,7 +98,7 @@ class App extends Component {
             this.computerMove()
             .then(this.checkForWinner).then( winner => this.setStateSync(winner))
             .then(this.changePlayer)
-          }, 800);
+          }, this.state.waitFor);
         }
       });
     }
@@ -100,15 +117,22 @@ class App extends Component {
 
     // Lookahead
     if (isSmart) {
+      let newBoard = [];
       //Can computer win?
       const winningMoves = possibleMoves.filter( index => {
-        const newBoard = currentBoard.map((box, i) => i===index?"x":box);
+        newBoard = currentBoard.map((box, i) => i===index?"x":box);
         return this.checkForWinner(newBoard, "x");
       });
       //Can Computer Lose?
       const opponentWinningMoves = possibleMoves.filter( index => {
-        const newBoard = currentBoard.map((box, i) => i===index?"o":box);
+        newBoard = currentBoard.map((box, i) => i===index?"o":box);
         return this.checkForWinner(newBoard, "o");
+      });
+      // Can computer fill 2 of 3 in blank row?
+      const almostWins = possibleMoves.filter( index => {
+        newBoard = currentBoard.map((box, i) => i===index?"x":box);
+        return this.wins.filter( boxes => boxes.filter(box => newBoard[box] === "").length === 1
+                                       && boxes.filter(box => newBoard[box] === "x").length === 2 ).length;
       });
       if (winningMoves.length) {
         //Chose winning move
@@ -116,6 +140,9 @@ class App extends Component {
       } else if (opponentWinningMoves.length) {
         // Or block opponent
         chosenMove = opponentWinningMoves[0];
+      } else if (almostWins.length) {
+        const i = Math.floor( Math.random() * almostWins.length )
+        chosenMove = almostWins[i];
       }
     }
     return this.fillBox(chosenMove);
@@ -139,24 +166,13 @@ class App extends Component {
   }
 
   checkForWinner = (newBoard, newPlayer) => {
-    const wins = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-
     const player = newPlayer?newPlayer:this.state.player;
     const board = newBoard?newBoard:this.state.board;
 
     const isBoardFull = !board.filter( box => box === "").length;
-    const isWinner = !!wins.filter( at => ( board[at[0]] === player
-                                              && board[at[1]] === player
-                                              && board[at[2]] === player)).length;
+    const isWinner = !!this.wins.filter( boxes => ( board[boxes[0]] === player
+                                                 && board[boxes[1]] === player
+                                                 && board[boxes[2]] === player)).length;
     const gameOver = isWinner || isBoardFull;
     const winner = isWinner?player:"";
     // When called with arguments (during the computer's lookahead)
@@ -171,19 +187,15 @@ class App extends Component {
         return new Promise( resolve => {
           setTimeout(() => {
             resolve({gameOver, winner});
-          }, 800);
+          }, this.state.waitFor);
         })
       }
     }
   }
 
   changePlayer = () => {
-    const swap = {
-      x:"o",
-      o:"x"
-    };
     return this.setStateSync({
-      player: swap[this.state.player]
+      player: this.swap[this.state.player]
     });
   }
 
