@@ -16,7 +16,6 @@ const Game = props => {
 
 Game.propTypes = {
   player: PropTypes.string.isRequired,
-  reset: PropTypes.func.isRequired,
   board: PropTypes.array.isRequired,
   move: PropTypes.func.isRequired
 }

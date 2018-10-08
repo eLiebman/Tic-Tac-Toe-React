@@ -44,7 +44,7 @@ class App extends Component {
     levels: {
       easy:.3,
       medium:.6,
-      hard:.9
+      hard:1
     },
     waitFor: 1500 // miliseconds before returning a value
   }
@@ -107,7 +107,7 @@ class App extends Component {
   computerMove = () => {
     const isSmart = Math.random() <= this.state.level;
 
-    const currentBoard = [...this.state.board];
+    const board = [...this.state.board];
     const possibleMoves = this.getEmptyBoxes();
 
     const i = Math.floor( Math.random() * possibleMoves.length );
@@ -117,37 +117,42 @@ class App extends Component {
 
     // Lookahead
     if (isSmart) {
-      let newBoard = [];
-      //Can computer win?
-      const winningMoves = possibleMoves.filter( index => {
-        newBoard = currentBoard.map((box, i) => i===index?"x":box);
-        return this.checkForWinner(newBoard, "x");
+      const player = "x";
+      const opponent = "o";
+
+      // Rank possibleMoves
+      const rankedMoves = possibleMoves.map( index => {
+        const lines = this.wins.filter( line => line.includes(index));
+
+        const myOpenLines = lines.filter( line => !line.filter( i => board[i] === opponent).length);
+        const myOccupiedLines = myOpenLines.filter( line => line.filter( i => board[i] === player).length);
+        const myWinningLines = myOccupiedLines.filter( line => line.filter(i => board[i] === player).length === 2);
+
+        const enemyOpenLines = lines.filter( line => !line.filter( i => board[i] === player).length);
+        const enemyOccupiedLines = enemyOpenLines.filter( line => line.filter( i => board[i] === opponent).length);
+        const enemyWinningLines = enemyOccupiedLines.filter( line => line.filter( i => board[i] === opponent).length === 2);
+
+        let score = 0;
+
+        if(myWinningLines.length || enemyWinningLines.length) {
+          score = 100;
+        } else if (myOccupiedLines.length > 1 || enemyOccupiedLines.length > 1){
+          score = 50;
+        } else {
+          score = myOpenLines.length + myOccupiedLines.length + enemyOpenLines.length + enemyOccupiedLines.length;
+        }
+
+        return {index, score};
       });
-      //Can Computer Lose?
-      const opponentWinningMoves = possibleMoves.filter( index => {
-        newBoard = currentBoard.map((box, i) => i===index?"o":box);
-        return this.checkForWinner(newBoard, "o");
-      });
-      // Can computer fill 2 of 3 in blank row?
-      const almostWins = possibleMoves.filter( index => {
-        newBoard = currentBoard.map((box, i) => i===index?"x":box);
-        return this.wins.filter( boxes => boxes.filter(box => newBoard[box] === "").length === 1
-                                       && boxes.filter(box => newBoard[box] === "x").length === 2 ).length;
-      });
-      if (winningMoves.length) {
-        //Chose winning move
-        chosenMove = winningMoves[0];
-      } else if (opponentWinningMoves.length) {
-        // Or block opponent
-        chosenMove = opponentWinningMoves[0];
-      } else if (almostWins.length) {
-        const i = Math.floor( Math.random() * almostWins.length )
-        chosenMove = almostWins[i];
-      }
+
+      chosenMove = rankedMoves.reduce( (high, current) => {
+        return current.score > high.score?current:high
+      }, {index: -1, score: 0}).index;
     }
     return this.fillBox(chosenMove);
   }
 
+// Helper Functions
   getEmptyBoxes = () => {
     const emptyIndices = [];
     this.state.board.forEach((box, index) => {
@@ -158,16 +163,15 @@ class App extends Component {
     return emptyIndices;
   }
 
-// Helper functions for each turn
   fillBox = index => {
     return this.setStateSync({
       board: this.state.board.map((box, i) => i===index?this.state.player:box)
     });
   }
 
-  checkForWinner = (newBoard, newPlayer) => {
-    const player = newPlayer?newPlayer:this.state.player;
-    const board = newBoard?newBoard:this.state.board;
+  checkForWinner = () => {
+    const player = this.state.player;
+    const board = this.state.board;
 
     const isBoardFull = !board.filter( box => box === "").length;
     const isWinner = !!this.wins.filter( boxes => ( board[boxes[0]] === player
@@ -175,22 +179,14 @@ class App extends Component {
                                                  && board[boxes[2]] === player)).length;
     const gameOver = isWinner || isBoardFull;
     const winner = isWinner?player:"";
-    // When called with arguments (during the computer's lookahead)
-    // the function completes immediately
-    if(newBoard || newPlayer) {
-      return gameOver?{gameOver, winner}:false
-    } else {
-    // When called without arguments, the function returns a promise
-      if (!gameOver) {
-        return new Promise( resolve => resolve(false));
-      } else {
-        return new Promise( resolve => {
-          setTimeout(() => {
-            resolve({gameOver, winner});
-          }, this.state.waitFor);
-        })
-      }
-    }
+
+    const callback = resolve => gameOver?
+                                setTimeout(() => {
+                                   resolve({gameOver, winner})
+                                 }, this.state.waitFor)
+                               :resolve(false)
+
+    return new Promise ( callback );
   }
 
   changePlayer = () => {
