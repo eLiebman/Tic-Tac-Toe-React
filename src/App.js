@@ -106,16 +106,15 @@ class App extends Component {
 
   computerMove = () => {
     const isSmart = Math.random() <= this.state.level;
-
     const board = [...this.state.board];
     const possibleMoves = this.getEmptyBoxes();
 
+    // Random move
     const i = Math.floor( Math.random() * possibleMoves.length );
     const randomMove = possibleMoves[i];
-
     let chosenMove = randomMove;
 
-    // Lookahead
+    // Smart move
     if (isSmart) {
       const player = "x";
       const opponent = "o";
@@ -123,6 +122,13 @@ class App extends Component {
       // Rank possibleMoves
       const rankedMoves = possibleMoves.map( index => {
         const lines = this.wins.filter( line => line.includes(index));
+
+        /* --------------------------------------------------------------
+        -- Line Categories: ---------------------------------------------
+        -- Open line - contains no enemy occupied squares ---------------
+        -- Occupied line - contains one or more player occupied squares -
+        -- Winning line - contains two player occupied squares-----------
+        ---------------------------------------------------------------*/
 
         const myOpenLines = lines.filter( line => !line.filter( i => board[i] === opponent).length);
         const myOccupiedLines = myOpenLines.filter( line => line.filter( i => board[i] === player).length);
@@ -132,19 +138,79 @@ class App extends Component {
         const enemyOccupiedLines = enemyOpenLines.filter( line => line.filter( i => board[i] === opponent).length);
         const enemyWinningLines = enemyOccupiedLines.filter( line => line.filter( i => board[i] === opponent).length === 2);
 
+        /* ---------------------------------------------------------------------------------
+        Game Over - Winning Line:
+          "o","o"," "
+          " ","x"," "
+          " "," "," "
+        If o moves to index 2, it will win
+        So x must block index 2
+        ----------------------------------------------------------------------------------*/
+        /* ---------------------------------------------------------------------------------
+        Trap - Two Occupied Lines:
+          "o"," "," "
+          " ","x","o"
+          " "," "," "
+        If o moves to index 2, x cannot block both winning lines (at index 1, and index 8)
+        So x must block index 2, or it will lose on the following turn
+        ----------------------------------------------------------------------------------*/
+        /* ---------------------------------------------------------------------------------
+        Trap - Two Occupied Lines x2:
+          "o"," "," "
+          " ","x"," "
+          " "," ","o"
+        If o moves to index 2 or index 6, x is caught in the Two Occupied Lines Trap (above)
+        x cannot prevent this trap by blocking, since x cannot block both squares at once
+        So x must force o to move elsewhere by threatening a win.
+        In this case, x can move to index 1, 3, 5, or 7. o must block, and the game will tie
+        ----------------------------------------------------------------------------------*/
+
         let score = 0;
 
+        // Assign score
         if(myWinningLines.length || enemyWinningLines.length) {
+          //Winning Lines take highest priority
           score = 100;
-        } else if (myOccupiedLines.length > 1 || enemyOccupiedLines.length > 1){
+        } else if (enemyOccupiedLines.length > 1) {
+          //Preventing Two Occupied Lines trap
+          score = 65
+        } else if (myOccupiedLines.length > 1) {
+          //Setting the Two Occupied Lines trap
           score = 50;
         } else {
+          // Other Moves
           score = myOpenLines.length + myOccupiedLines.length + enemyOpenLines.length + enemyOccupiedLines.length;
         }
-
         return {index, score};
       });
 
+      // Preventing the Two Occupied Lines x2 Trap
+      if (rankedMoves.filter( move => move.score === 65).length > 1 && !rankedMoves.filter( move => move.score === 100).length){
+        const losingMoves = rankedMoves.filter( move => move.score === 65)
+                                          .map( move => move.index );
+        // Force a move by putting two in a row
+        const nonLosingMoves = possibleMoves.filter( index => {
+          const myOccupiedLines = this.wins.filter( line => line.includes(index)
+                                                         &&!line.filter( i => board[i] === opponent).length
+                                                         && line.filter( i => board[i] === player).length );
+          return (
+            // Don't move into a losing square
+            !losingMoves.includes(index)
+            // Move into an occupied line (for two in a row)
+            && myOccupiedLines.length
+            // Don't force opponent into losing move
+            && myOccupiedLines.filter( line => !losingMoves.includes( line.filter( i => i !== index && board[i] !== player)[0] ))
+          )
+        });
+        // Assign a higher score
+        rankedMoves.forEach( move => {
+          if ( nonLosingMoves.includes(move.index) ){
+            move.score = 95;
+          }
+        });
+      }
+
+      // Chose highest scoring move
       chosenMove = rankedMoves.reduce( (high, current) => {
         return current.score > high.score?current:high
       }, {index: -1, score: 0}).index;
